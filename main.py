@@ -1,11 +1,36 @@
-from bale import Bot, CallbackQuery, Message, InlineKeyboardMarkup, InlineKeyboardButton, MenuKeyboardMarkup, MenuKeyboardButton
+import asyncio
+from bale import Bot, Message, MenuKeyboardMarkup, MenuKeyboardButton
 import aiohttp
 from decouple import config
+from models import User
+from db import init_db
 
 divination_base_url = "https://hafezdivination.pythonanywhere.com/api/divination/"
 TOKEN = config("TOKEN")
-
 client = Bot(token=TOKEN)
+
+
+async def save_user(message):
+    chat_id = str(message.chat.id)
+    first_name = getattr(message.chat, "first_name", "")
+    last_name = getattr(message.chat, "last_name", "")
+    username = getattr(message.chat, "username", "")
+
+    user, created = await User.get_or_create(
+        chat_id=chat_id,
+        defaults={
+            "first_name": first_name,
+            "last_name": last_name,
+            "username": username
+        }
+    )
+
+    if not created:
+        user.first_name = first_name
+        user.last_name = last_name
+        user.username = username
+        await user.save()
+
 
 async def get_divination():
     async with aiohttp.ClientSession() as session:
@@ -16,6 +41,8 @@ async def get_divination():
 
 @client.event
 async def on_message(message: Message):
+    await save_user(message)
+
     if message.content == "/start":
         await message.reply(
             f"سلام {message.author.first_name} 🌸\nبرای گرفتن فال روی دکمه زیر بزن 👇",
@@ -34,25 +61,13 @@ async def on_message(message: Message):
 
 {interpretation}
 """
-
-        # inline_keyboard = InlineKeyboardMarkup().add(
-        #     InlineKeyboardButton("📖 دریافت تفسیر", callback_data=interpretation)
-        # )
-
         await client.send_message(
             chat_id=message.chat_id,
-            text=text,
-            # components=inline_keyboard
+            text=text
         )
 
 
-# @client.event
-# async def on_callback_query(callback: CallbackQuery):
-#     interpretation = callback.data
-#     await client.send_message(
-#         chat_id=callback.message.chat_id,
-#         text=f"📖 تفسیر فال:\n\n{interpretation}"
-#     )
-
+loop = asyncio.get_event_loop()
+loop.run_until_complete(init_db())
 
 client.run()
