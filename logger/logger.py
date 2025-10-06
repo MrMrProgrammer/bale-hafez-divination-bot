@@ -17,16 +17,13 @@ def build_user_info_message(message):
     chat = message.chat
 
     msg = f"""
-📨 **New Message Received**
-
-🆔 Message ID: {message.message_id or "-"}
+✉️ Message: {message.text or "-"}
+📛 Username: {chat.username or "-"}
+🧑‍💼 Name: {chat.first_name or "-"}
 🕒 Date: {message.date or "-"}
 👤 User ID: {user.id or "-"}
 💬 Chat ID: {chat.id or "-"}
-🧑‍💼 First Name: {chat.first_name or "-"}
-🧑‍💻 Last Name: {getattr(chat, 'last_name', '-') }
-📛 Username: {chat.username or "-"}
-✉️ Message: {message.text or "-"}
+🆔 Message ID: {message.message_id or "-"}
 💬 Chat Type: {chat.type or "-"}
 """
     return msg
