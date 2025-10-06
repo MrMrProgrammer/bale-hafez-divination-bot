@@ -1,3 +1,5 @@
 aiohttp
 python-decouple
 python-bale-bot
+tortoise-orm
+aiosqlite
