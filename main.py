@@ -4,35 +4,36 @@ import aiohttp
 from decouple import config
 from models import User
 from db import init_db
+from logger import logger
 
 divination_base_url = "https://hafezdivination.pythonanywhere.com/api/divination/"
 TOKEN = config("TOKEN")
 client = Bot(token=TOKEN)
 
 
-async def save_user(message):
-    user_id = str(message.from_user.id)
-    chat_id = str(message.chat.id)
-    first_name = getattr(message.chat, "first_name", "")
-    last_name = getattr(message.chat, "last_name", "")
-    username = getattr(message.chat, "username", "")
+# async def save_user(message):
+#     user_id = str(message.from_user.id)
+#     chat_id = str(message.chat.id)
+#     first_name = getattr(message.chat, "first_name", "")
+#     last_name = getattr(message.chat, "last_name", "")
+#     username = getattr(message.chat, "username", "")
 
-    user, created = await User.get_or_create(
-        user_id=user_id,
-        defaults={
-            "chat_id": chat_id,
-            "first_name": first_name,
-            "last_name": last_name,
-            "username": username
-        }
-    )
+#     user, created = await User.get_or_create(
+#         user_id=user_id,
+#         defaults={
+#             "chat_id": chat_id,
+#             "first_name": first_name,
+#             "last_name": last_name,
+#             "username": username
+#         }
+#     )
 
-    if not created:
-        user.chat_id = chat_id
-        user.first_name = first_name
-        user.last_name = last_name
-        user.username = username
-        await user.save()
+#     if not created:
+#         user.chat_id = chat_id
+#         user.first_name = first_name
+#         user.last_name = last_name
+#         user.username = username
+#         await user.save()
 
 
 async def get_divination():
@@ -44,9 +45,10 @@ async def get_divination():
 
 @client.event
 async def on_message(message: Message):
-    await save_user(message)
+    # await save_user(message)
 
-    print(message)
+    info_message = logger.build_user_info_message(message)
+    await logger.send_notification(info_message)
 
     if message.content == "/start":
         await message.reply(
@@ -72,7 +74,7 @@ async def on_message(message: Message):
         )
 
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(init_db())
+# loop = asyncio.get_event_loop()
+# loop.run_until_complete(init_db())
 
 client.run()
