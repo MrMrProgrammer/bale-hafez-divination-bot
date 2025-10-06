@@ -11,17 +11,22 @@ async def send_notification(message: str):
     except Exception as e:
         print(f"Error sending notification: {e}")
 
+
 def build_user_info_message(message):
     user = message.from_user
     chat = message.chat
 
     msg = f"""
-💬 New Message Received
-User ID: {user.id}
-Chat ID: {chat.id}
-First Name: {chat.first_name}
-Last Name: {getattr(chat, 'last_name')}
-Username: {chat.username}
-Message: {message.text}
+📨 **New Message Received**
+
+🆔 Message ID: {message.message_id or "-"}
+🕒 Date: {message.date or "-"}
+👤 User ID: {user.id or "-"}
+💬 Chat ID: {chat.id or "-"}
+🧑‍💼 First Name: {chat.first_name or "-"}
+🧑‍💻 Last Name: {getattr(chat, 'last_name', '-') }
+📛 Username: {chat.username or "-"}
+✉️ Message: {message.text or "-"}
+💬 Chat Type: {chat.type or "-"}
 """
     return msg

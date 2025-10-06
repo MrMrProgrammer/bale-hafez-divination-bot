@@ -2,8 +2,6 @@ import asyncio
 from bale import Bot, Message, MenuKeyboardMarkup, MenuKeyboardButton
 import aiohttp
 from decouple import config
-from models import User
-from db import init_db
 from logger import logger
 
 divination_base_url = "https://hafezdivination.pythonanywhere.com/api/divination/"
@@ -45,6 +43,19 @@ async def get_divination():
 
 @client.event
 async def on_message(message: Message):
+
+    # print(message)
+    # print("----------------------------------")
+    # print(message.text)
+    # print(message.from_user.first_name)
+    # print(message.from_user.username)
+    # print(message.from_user.id)
+
+    # print(message.chat.id)
+    # print(message.chat.type)
+    # print(message.message_id)
+    # print(message.date)
+
     # await save_user(message)
 
     info_message = logger.build_user_info_message(message)
