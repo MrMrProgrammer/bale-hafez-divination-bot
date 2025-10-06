@@ -11,14 +11,16 @@ client = Bot(token=TOKEN)
 
 
 async def save_user(message):
+    user_id = str(message.from_user.id)
     chat_id = str(message.chat.id)
     first_name = getattr(message.chat, "first_name", "")
     last_name = getattr(message.chat, "last_name", "")
     username = getattr(message.chat, "username", "")
 
     user, created = await User.get_or_create(
-        chat_id=chat_id,
+        user_id=user_id,
         defaults={
+            "chat_id": chat_id,
             "first_name": first_name,
             "last_name": last_name,
             "username": username
@@ -26,6 +28,7 @@ async def save_user(message):
     )
 
     if not created:
+        user.chat_id = chat_id
         user.first_name = first_name
         user.last_name = last_name
         user.username = username
@@ -42,6 +45,8 @@ async def get_divination():
 @client.event
 async def on_message(message: Message):
     await save_user(message)
+
+    print(message)
 
     if message.content == "/start":
         await message.reply(
